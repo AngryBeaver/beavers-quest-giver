@@ -37,6 +37,7 @@ export class EntityApp<T extends EntityType> {
         }
         this.content(tabData);
         addTab(this.element,tabData);
+        this.app.changeTab(this.app.tabGroups[tabData.group],tabData.group,{force:true})
     }
 
     init() {

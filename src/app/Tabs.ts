@@ -21,7 +21,7 @@ function addTabV13(html, tabData:TabData){
 }
 
 function addTabContentV13(html, tabData:TabData){
-  if( html.find(`section.tab [data-tab="${tabData.id}"]`).length === 0) {
+  if( html.find(`section.tab[data-tab="${tabData.id}"]`).length === 0) {
     html.find(`nav.${tabData.group}-tabs`).after(`
     <section class="tab" data-application-part="${tabData.id}" data-group="${tabData.group}" data-tab="${tabData.id}">
       ${tabData.content}
