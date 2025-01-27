@@ -1,16 +1,6 @@
 import {NAMESPACE, Settings} from "./Settings.js";
-import {BeaversProximityAction} from "./new/BeaversProximityAction.js";
-import {UserInteraction} from "./new/UserInteraction.js";
-import {ProximityActionUI} from "./uis/ProximityActionUI.js";
-import {ActivityLayer} from "./canvas/ActivityLayer.js";
-import {ProximityTileApp} from "./new/ProximityTileApp.js";
-import {DisplayProxy} from "./new/DisplayProxy.js";
-import {BeaversButton} from "./elements/Button.js";
-import {InvestigateActivity} from "./new/InvestigateActivity.js";
-import {BeaversActivityTestConfig} from "./elements/BeaversActivityTestConfig.js";
-import {ProximityWallApp} from "./new/ProximityWallApp.js";
-import {SecretDoorActivity} from "./new/SecretDoorActivity.js";
-
+import {ProximityRegionApp} from "./app/region/ProximityRegionApp.js";
+import { BeaversProximityApp } from "./app/BeaversProximityApp.js";
 
 export const HOOK_READY = NAMESPACE + ".ready";
 export const SOCKET_EXECUTE_ACTIVITY = "executeActivity";
@@ -22,39 +12,29 @@ Hooks.on("beavers-system-interface.init", async function () {
 
 Hooks.once('init', () => {
     game[NAMESPACE] = game[NAMESPACE] || {};
-    game[NAMESPACE].Settings = new Settings();
+
 })
 
 Hooks.once("beavers-system-interface.ready", async function () {
     game[NAMESPACE] = game[NAMESPACE] || {};
-    game[NAMESPACE].BeaversProximityAction = new BeaversProximityAction();
-    game[NAMESPACE].DisplayProxy = new DisplayProxy();
-    game[NAMESPACE].UserInteraction = new UserInteraction(game[NAMESPACE].BeaversProximityAction);
-    game[NAMESPACE].ActivityLayer = new ActivityLayer();
-    game[NAMESPACE].socket.register(SOCKET_EXECUTE_ACTIVITY, game[NAMESPACE].BeaversProximityAction.executeAction.bind(game[NAMESPACE].BeaversProximityAction));
-    game[NAMESPACE].socket.register(SOCKET_TEST_PROMPT, game[NAMESPACE].DisplayProxy.prompt.bind(game[NAMESPACE].DisplayProxy));
-    Hooks.call(HOOK_READY, game[NAMESPACE].BeaversProximityAction);
+    game[NAMESPACE].Settings = new Settings();
+    game[NAMESPACE].BeaversProximityApp = new BeaversProximityApp();
+    //game[NAMESPACE].socket.register(SOCKET_EXECUTE_ACTIVITY, game[NAMESPACE].BeaversProximityAction.executeAction.bind(game[NAMESPACE].BeaversProximityAction));
+    //game[NAMESPACE].socket.register(SOCKET_TEST_PROMPT, game[NAMESPACE].DisplayProxy.prompt.bind(game[NAMESPACE].DisplayProxy));
+    Hooks.call(HOOK_READY, game[NAMESPACE].BeaversProximityApp);
     initHandlebars();
     initializeCustomElements();
-    Hooks.on("renderTileConfig", (app, html, options) => {
-        new ProximityTileApp(app, html, options);
+    Hooks.on("renderRegionConfig", (app, html, options) => {
+        new ProximityRegionApp(app, html, options);
     });
-    Hooks.on("renderWallConfig", (app, html, options) => {
-        new ProximityWallApp(app, html, options);
-    });
+    //game[NAMESPACE].BeaversProximityAction.addActivity(InvestigateActivity);
+    //game[NAMESPACE].BeaversProximityAction.addActivity(SecretDoorActivity);
 
 })
 
-Hooks.on(HOOK_READY, async function () {
-    if(game instanceof Game){
-        game[NAMESPACE].BeaversProximityAction.addActivity(InvestigateActivity);
-        game[NAMESPACE].BeaversProximityAction.addActivity(SecretDoorActivity);
-    }
-});
-
 Hooks.once("beavers-gamepad.ready", () => {
-    const paUI = new ProximityActionUI();
-    game["beavers-gamepad"].TinyUIModuleManager.addModule(paUI.name, paUI);
+    //const paUI = new ProximityActionUI();
+    //game["beavers-gamepad"].TinyUIModuleManager.addModule(paUI.name, paUI);
 });
 
 Hooks.once("socketlib.ready", () => {
@@ -63,13 +43,10 @@ Hooks.once("socketlib.ready", () => {
 });
 
 
-Hooks.on("ready", ()=>{
-
-});
 
 function initializeCustomElements(){
-    customElements.define('beavers-button',BeaversButton);
-    customElements.define('beavers-activity-test-config',BeaversActivityTestConfig)
+    //customElements.define('beavers-button',BeaversButton);
+    //customElements.define('beavers-activity-test-config',BeaversActivityTestConfig)
 }
 
 

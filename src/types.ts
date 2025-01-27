@@ -1,5 +1,7 @@
-type EntityType = "wall" | "tile";
+
+type EntityType = "wall" | "tile" | "region";
 type ProximityType = "close" | "cone"
+type Point = Canvas.Point
 
 /**
  * ActivityConfigs is the configuration for individual Entities.
@@ -18,7 +20,7 @@ interface EntityConfigs {
 interface EntityConfig {
    activityId:string, data: {
        [property:string]:any
-   } & Partial<Test>
+   } & Partial<Test<any>>
 }
 
 /**
@@ -29,7 +31,7 @@ interface EntityConfig {
  */
 interface ActivityData {
     enabled: { attribute: string, value: any }[],
-    test: Test
+    test: Test<any>
 }
 /**
  * ActivityTemplate describes an Activity
@@ -53,7 +55,7 @@ interface ActivityTemplate {
  * in your ActivityDeclaration you should overwrite template and defaultData.
  */
 interface Activity {
-    new(entityId: string, initiator: InitiatorData): ActionI
+    new(entityId: string, initiatorData: InitiatorData): ActivityInstance
     template: ActivityTemplate,
     data: ActivityData,
     defaultData: ActivityData,
@@ -101,10 +103,10 @@ interface HitAreaData {
     polygon: number[]
 }
 
-interface BeaversProximityActionI {
+interface BeaversProximityAppI {
+    addActivity:(activity: Activity) => void,
     getActivities: (type: EntityType) => Activity[],
     getActivity: (actionId: string) => Activity,
-    scanProximity: (request: ProximityRequest) => ProximityResponse;
 }
 
 /**
@@ -112,7 +114,7 @@ interface BeaversProximityActionI {
  * configured with the entity it is activated on the initiator that activates it and all global and individual configurations.
  * it has one Run method that is executed with the TestResult given.
  */
-interface ActionI {
+interface ActivityInstance {
     entity: any;
     configs: EntityConfig[];
     initiator: InitiatorData;
@@ -124,7 +126,8 @@ interface ActivityLayerI {
 interface SettingsI {
     addActivity:(activity: Activity)=>void,
     getActivityData:(activityId: string)=>ActivityData,
-    getActivitySettingData:(activity:Activity)=>any,
+    set:(key:string, value:any)=>void
+    //getActivitySettingData:(activity:Activity)=>any,
 }
 
 
@@ -132,59 +135,8 @@ interface SettingsI {
 
 
 
-type InputType =  "selection" | "number" | "text" | "area" | "boolean";
+
 type MsgType = "info" | "warn" | "error";
-type InputField = TextField | SelectionField | BooleanField | NumberField;
-type Test = NoneTest | RollTest | InputTest | GMTest
-
-interface GenericField {
-    label: string,
-    note?: string,
-    defaultValue?: any,
-}
-
-interface NumberField extends GenericField{
-    type: "number",
-    defaultValue?: number,
-}
-
-interface BooleanField extends GenericField{
-    type: "boolean",
-    defaultValue?: boolean,
-}
-
-interface TextField extends GenericField{
-    type: "text"|"area",
-    defaultValue?: string,
-}
-
-interface SelectionField extends GenericField{
-    type: "selection",
-    defaultValue?: string,
-    choices: {
-        [id:string]:{text:string,img?:string}
-    }
-}
-
-
-interface NoneTest {
-    type: "none"
-}
-
-interface RollTest {
-    type: "skill" | "ability"
-    inputField: NumberField,
-    acceptedResponse: number,
-}
-interface InputTest {
-    type: "input"
-    inputField: InputField,
-    acceptedResponse: string,
-}
-interface GMTest {
-    type: "gm"
-    inputField: BooleanField,
-}
 
 
 interface TestResult {
@@ -199,12 +151,6 @@ interface DisplayModule {
     input: (inputField: InputField,initiatorData:InitiatorData)=>Promise<any>
 }
 
-interface InitiatorData {
-    userId: string,
-    actorId: string,
-    tokenId: string,
-    sceneId: string,
-}
 
 interface Edge {
     p1: Point,
@@ -220,44 +166,13 @@ interface Bounds {
     width: number,
     height: number
 }
-/*********************************** extend foundry types */
-interface Game {
-    "beavers-proximity-action":{
-        BeaversProximityAction:BeaversProximityActionI,
-        ActivityLayer: ActivityLayerI,
-        Settings: SettingsI,
-        DisplayProxy: DisplayModule
-    }
-}
-
-/*********************************** fix foundry types */
-interface ClockwiseSweepPolygon {
-    _constrainBoundaryShapes:()=>void
-    addPoint:(pt:PolygonVertex)=>void
-    _switchEdge:(result:CollisionResult, activeEdges?:any)=>void
-    // @ts-ignore
-    _isVertexBehindActiveEdges:(vertex:PolygonVertex, activeEdges:EdgeSet)=>{isBehind:boolean, wasLimited:boolean}
-}
 
 
-interface TileDocument {
-    x:number,
-    y:number,
-    width: number,
-    height: number,
-}
-
-interface User {
+interface TabData {
     id: string,
+    name: string,
+    icon: string,
+    group: string,
+    content: string,
+    onClick: ()=>void
 }
-
-interface CollisionResult {
-    target:PolygonVertex
-}
-interface PolygonEdge {
-    wall?:Wall
-}
-interface PolygonVertex {
-    isEndpoint:boolean
-}
-

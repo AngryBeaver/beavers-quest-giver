@@ -1,5 +1,8 @@
 {
   "beaversProximityAction": {
+    "tab": {
+      "label": "Proximity"
+    },
     "keybinding": {
       "name": "Show Current Token 's Activities"
     },
